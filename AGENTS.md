@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Staff sign in by mobile number mapped to a synthetic email (`<mobile>@apexlearning.local`); public signup is off and only the manager creates teacher accounts through server functions — why: login is by phone number without email.
+- The manager account is created on first manager login from the MANAGER_MOBILE / MANAGER_PASSWORD secrets — why: keeps credentials out of code.
