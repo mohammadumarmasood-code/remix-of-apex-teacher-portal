@@ -22,7 +22,7 @@ export const ensureManager = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-async function assertManager(supabase: any, userId: string) {
+export async function assertManager(supabase: any, userId: string) {
   const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "manager" });
   if (!data) throw new Error("Only the manager can do this");
 }
