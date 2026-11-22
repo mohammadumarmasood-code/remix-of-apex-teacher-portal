@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { LogOut, Trash2, UserPlus, GraduationCap } from "lucide-react";
+import { Eye, EyeOff, KeyRound, LogOut, Trash2, UserPlus, GraduationCap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { addTeacher, removeTeacher } from "@/lib/staff.functions";
+import { addTeacher, removeTeacher, setTeacherPassword } from "@/lib/staff.functions";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -31,6 +31,10 @@ function Dashboard() {
   const [teachers, setTeachers] = useState<Profile[]>([]);
   const [form, setForm] = useState({ full_name: "", mobile: "", subject: "", password: "" });
   const [busy, setBusy] = useState(false);
+  const [passwordTarget, setPasswordTarget] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [passwordBusy, setPasswordBusy] = useState(false);
 
   const loadTeachers = useCallback(async () => {
     const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "teacher");
@@ -86,6 +90,22 @@ function Dashboard() {
     }
   }
 
+  async function onSetPassword(e: React.FormEvent, id: string) {
+    e.preventDefault();
+    setPasswordBusy(true);
+    try {
+      await setTeacherPassword({ data: { id, password: newPassword } });
+      toast.success("Teacher password updated");
+      setPasswordTarget(null);
+      setNewPassword("");
+      setShowNewPassword(false);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setPasswordBusy(false);
+    }
+  }
+
   if (!me) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</div>;
 
   return (
@@ -127,12 +147,67 @@ function Dashboard() {
               ) : (
                 <ul className="divide-y">
                   {teachers.map((t) => (
-                    <li key={t.id} className="flex items-center justify-between py-3">
-                      <div>
-                        <p className="font-semibold">{t.full_name}</p>
-                        <p className="text-sm text-muted-foreground">{t.mobile}{t.subject ? ` · ${t.subject}` : ""}</p>
+                    <li key={t.id} className="py-3">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="font-semibold">{t.full_name}</p>
+                          <p className="text-sm text-muted-foreground">{t.mobile}{t.subject ? ` · ${t.subject}` : ""}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setPasswordTarget(t.id);
+                              setNewPassword("");
+                              setShowNewPassword(false);
+                            }}
+                          >
+                            <KeyRound className="h-4 w-4" /> Set password
+                          </Button>
+                          <Button variant="ghost" size="icon" aria-label="Remove teacher" onClick={() => onRemove(t.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </div>
                       </div>
-                      <Button variant="ghost" size="icon" aria-label="Remove teacher" onClick={() => onRemove(t.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      {passwordTarget === t.id && (
+                        <form onSubmit={(e) => onSetPassword(e, t.id)} className="mt-3 flex flex-col gap-2 sm:flex-row">
+                          <div className="flex min-w-0 flex-1 items-center gap-2">
+                            <Input
+                              aria-label={`New password for ${t.full_name}`}
+                              autoComplete="new-password"
+                              type={showNewPassword ? "text" : "password"}
+                              minLength={6}
+                              required
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={showNewPassword ? "Hide new password" : "Show new password"}
+                              onClick={() => setShowNewPassword((visible) => !visible)}
+                            >
+                              {showNewPassword ? <EyeOff /> : <Eye />}
+                            </Button>
+                          </div>
+                          <Button type="submit" size="sm" disabled={passwordBusy}>
+                            {passwordBusy ? "Saving…" : "Save password"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setPasswordTarget(null);
+                              setNewPassword("");
+                              setShowNewPassword(false);
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </form>
+                      )}
                     </li>
                   ))}
                 </ul>

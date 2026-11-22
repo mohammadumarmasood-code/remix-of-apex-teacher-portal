@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { mobileToEmail, isValidMobile } from "./staff";
+import { mobileToEmail, isValidMobile, isValidPassword } from "./staff";
 
 // Makes sure the manager account exists. Never returns credentials.
 export const ensureManager = createServerFn({ method: "POST" })
@@ -33,7 +33,7 @@ export const addTeacher = createServerFn({ method: "POST" })
     const mobile = String(d.mobile).replace(/\D/g, "");
     if (!d.full_name?.trim()) throw new Error("Name is required");
     if (!isValidMobile(mobile)) throw new Error("Enter a valid 10-digit mobile number");
-    if (!d.password || d.password.length < 6) throw new Error("Password must be at least 6 characters");
+    if (!isValidPassword(d.password)) throw new Error("Password must be at least 6 characters");
     return { full_name: d.full_name.trim(), mobile, subject: (d.subject ?? "").trim(), password: d.password };
   })
   .handler(async ({ data, context }) => {
@@ -46,6 +46,36 @@ export const addTeacher = createServerFn({ method: "POST" })
     if (error || !created.user) throw new Error(error?.message.includes("already") ? "This mobile number is already registered" : error?.message.includes("weak") ? "Password is too easy to guess. Choose a stronger one." : "Could not create teacher");
     await supabaseAdmin.from("profiles").insert({ id: created.user.id, full_name: data.full_name, mobile: data.mobile, subject: data.subject || null });
     await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: "teacher" });
+    return { ok: true };
+  });
+
+export const setTeacherPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; password: string }) => {
+    const id = String(d.id ?? "").trim();
+    const password = String(d.password ?? "");
+    if (!id) throw new Error("Teacher account not found");
+    if (!isValidPassword(password)) throw new Error("Password must be at least 6 characters");
+    return { id, password };
+  })
+  .handler(async ({ data, context }) => {
+    await assertManager(context.supabase, context.userId);
+    const { data: teacherRole, error: roleError } = await context.supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("user_id", data.id)
+      .eq("role", "teacher")
+      .maybeSingle();
+    if (roleError || !teacherRole) throw new Error("Teacher account not found");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, {
+      password: data.password,
+    });
+    if (error) {
+      console.error("updateUserById", error.message);
+      throw new Error("Could not update teacher password");
+    }
     return { ok: true };
   });
 
