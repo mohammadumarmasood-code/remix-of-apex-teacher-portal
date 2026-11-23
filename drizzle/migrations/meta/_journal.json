@@ -1,5 +1,20 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795421475437,
+      "tag": "0000_add_student_account_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795421570000,
+      "tag": "0001_create_student_homework_attendance",
+      "breakpoints": true
+    }
+  ]
 }

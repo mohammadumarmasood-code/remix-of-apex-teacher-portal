@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance: {
+        Row: {
+          attendance_date: string
+          created_at: string
+          id: string
+          note: string | null
+          status: string
+          student_id: string
+          teacher_id: string
+        }
+        Insert: {
+          attendance_date?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          status: string
+          student_id: string
+          teacher_id: string
+        }
+        Update: {
+          attendance_date?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          status?: string
+          student_id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      homework: {
+        Row: {
+          created_at: string
+          due_at: string | null
+          id: string
+          instructions: string
+          subject: string | null
+          teacher_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          instructions?: string
+          subject?: string | null
+          teacher_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          instructions?: string
+          subject?: string | null
+          teacher_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homework_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -37,6 +120,49 @@ export type Database = {
           subject?: string | null
         }
         Relationships: []
+      }
+      student_teacher_assignments: {
+        Row: {
+          assigned_by: string
+          created_at: string
+          student_id: string
+          teacher_id: string
+        }
+        Insert: {
+          assigned_by: string
+          created_at?: string
+          student_id: string
+          teacher_id: string
+        }
+        Update: {
+          assigned_by?: string
+          created_at?: string
+          student_id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_teacher_assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_teacher_assignments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_teacher_assignments_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -70,7 +196,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "manager" | "teacher"
+      app_role: "manager" | "teacher" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -198,7 +324,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["manager", "teacher"],
+      app_role: ["manager", "teacher", "student"],
     },
   },
 } as const

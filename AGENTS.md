@@ -31,3 +31,4 @@ use the editor.
 
 - Staff sign in by mobile number mapped to a synthetic email (`<mobile>@apexlearning.local`); public signup is off and only the manager creates teacher accounts through server functions — why: login is by phone number without email.
 - The manager account is created on first manager login from the MANAGER_MOBILE / MANAGER_PASSWORD secrets — why: keeps credentials out of code.
+- Classroom records are stored in application tables protected by row-level policies, and privileged account creation or password changes run only through authenticated server functions — why: keep student records private and staff actions role-checked.
