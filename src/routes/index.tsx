@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
-  const [role, setRole] = useState<"teacher" | "manager">("teacher");
+  const [role, setRole] = useState<"teacher" | "manager" | "student">("teacher");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -82,10 +82,11 @@ function Index() {
               <p className="text-sm text-muted-foreground">Use your registered mobile number</p>
             </div>
           </div>
-          <Tabs value={role} onValueChange={(v) => setRole(v as "teacher" | "manager")} className="mb-6">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs value={role} onValueChange={(v) => setRole(v as "teacher" | "manager" | "student")} className="mb-6">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="teacher">Teacher</TabsTrigger>
               <TabsTrigger value="manager">Manager</TabsTrigger>
+              <TabsTrigger value="student">Student</TabsTrigger>
             </TabsList>
           </Tabs>
           <form onSubmit={onSubmit} className="space-y-4">
@@ -98,10 +99,10 @@ function Index() {
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <Button type="submit" className="w-full" size="lg" disabled={busy}>
-              {busy ? "Signing in…" : `Sign in as ${role === "teacher" ? "Teacher" : "Manager"}`}
+              {busy ? "Signing in…" : `Sign in as ${role === "teacher" ? "Teacher" : role === "student" ? "Student" : "Manager"}`}
             </Button>
           </form>
-          <p className="mt-6 text-center text-xs text-muted-foreground">Teacher accounts are created by the manager.</p>
+          <p className="mt-6 text-center text-xs text-muted-foreground">Accounts are provided by the Apex Learning Classes team.</p>
         </section>
       </div>
     </main>

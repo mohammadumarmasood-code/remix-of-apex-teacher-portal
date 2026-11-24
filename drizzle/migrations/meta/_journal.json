@@ -15,6 +15,13 @@
       "when": 1795421570000,
       "tag": "0001_create_student_homework_attendance",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795481826602,
+      "tag": "0002_add_live_classroom_and_private_recordings",
+      "breakpoints": true
     }
   ]
 }

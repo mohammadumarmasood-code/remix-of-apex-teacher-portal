@@ -59,6 +59,55 @@ export type Database = {
           },
         ]
       }
+      class_signals: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          recipient_id: string
+          sender_id: string
+          signal: Json
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          recipient_id: string
+          sender_id: string
+          signal: Json
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          sender_id?: string
+          signal?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_signals_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_signals_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_signals_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       homework: {
         Row: {
           created_at: string
@@ -90,6 +139,89 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "homework_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_class_recordings: {
+        Row: {
+          class_id: string
+          created_at: string
+          duration_seconds: number
+          file_path: string
+          id: string
+          mime_type: string
+          uploaded_by: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          duration_seconds?: number
+          file_path: string
+          id?: string
+          mime_type: string
+          uploaded_by: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          duration_seconds?: number
+          file_path?: string
+          id?: string
+          mime_type?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_recordings_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_class_recordings_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_classes: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          starts_at: string
+          status: string
+          teacher_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          starts_at: string
+          status?: string
+          teacher_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          starts_at?: string
+          status?: string
+          teacher_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_classes_teacher_id_fkey"
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "profiles"
